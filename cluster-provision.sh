@@ -83,6 +83,14 @@ az network private-endpoint create --resource-group $nodeResourceGroup \
 
 mlName=$(az ml workspace list --resource-group $resourceGroup --query [].name -o tsv)
 
+APP_CLIENT_ID=$(az ad sp list --display-name $identityName --query '[0].appId' -otsv)
+resourceID=$(az ml workspace show  --resource-group $resourceGroup --name $mlName --query id -otsv)
+
+az role assignment create --assignee $APP_CLIENT_ID \
+--role "AzureML Data Scientist" \
+--scope $resourceID
+
+
 # Create a private endpoint for the machine learning workspace
 az network private-endpoint create --resource-group $nodeResourceGroup \
 --connection-name "${mlName}PrivateEndpoint" \
